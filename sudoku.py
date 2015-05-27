@@ -13,7 +13,35 @@ class Sudoku(CSP):
         self.variables = set(itertools.product(r, r, r, r))
         self.domain = list(range(1, 10))
 
-    def _is_consistent(self):
+    def _check_consistency(self, var):
+        br, bc, cr, cc = var
+        val = self.assignment[var]
+        r = range(3)
+
+        # Check the box for duplicates
+        for i, j in itertools.product(r, r):
+            key = (br, bc, i, j)
+            if key not in self.assignment or key == var:
+                continue
+            if self.assignment[key] == val:
+                return False
+
+        # Check the row for duplicates
+        for i, j in itertools.product(r, r):
+            key = (br, i, cr, j)
+            if key not in self.assignment or key == var:
+                continue
+            if self.assignment[key] == val:
+                return False
+
+        # Check the column for duplicates
+        for i, j in itertools.product(r, r):
+            key = (i, bc, j, cc)
+            if key not in self.assignment or key == var:
+                continue
+            if self.assignment[key] == val:
+                return False
+
         return True
 
     def select_unassigned_var(self):
@@ -38,18 +66,19 @@ class Sudoku(CSP):
         return '\n'.join(' '.join(map(str, row)) for row in grid)
 
 
-def csp_backtrack(csp):
+def csp_backtrack(csp, first=10):
     """ Solve a constraint satisfaction problem `csp` through backtracking. """
 
     if csp.complete():
         return csp
     var = csp.select_unassigned_var()
     for value in csp.order_domain_values(var):
+        #if first: print(value)
         if csp.assign(var, value):
-            result = csp_backtrack(csp)
+            result = csp_backtrack(csp)#, first and first-1)
             if result is not None:
                 return result
-            csp.unassign(var, value)
+            csp.unassign(var)
     return None
 
 if __name__ == '__main__':

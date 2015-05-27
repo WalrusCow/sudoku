@@ -9,8 +9,11 @@ class CSP(ABC):
         self.assignment = dict()
 
     @abstractmethod
-    def _is_consistent(self):
-        """ Implementation of constraints. """
+    def _check_consistency(self, var):
+        """
+        Implementation of constraints checking. `var` is the variable update
+        that caused this check.
+        """
         pass
 
     @abstractmethod
@@ -29,7 +32,7 @@ class CSP(ABC):
         not the assignment was successful (was valid).
         """
         self.assignment[var] = value
-        if self._is_consistent():
+        if self._check_consistency(var):
             return True
         self.unassign(var)
         return False

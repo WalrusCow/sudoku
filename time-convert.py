@@ -1,6 +1,6 @@
 import sys
 import re
-for l in sys.stdin:
+for l in map(str.strip, sys.stdin):
     start = re.search('\d', l).start()
     l = l[start:]
     m = l.index('m')

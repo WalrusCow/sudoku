@@ -26,11 +26,6 @@ class CSP(ABC):
         """ Choose an order to attempt domain values for `var`. """
         pass
 
-    @abstractmethod
-    def recompute_possibilities(self):
-        """ Re-compute possibilities for each variable. """
-        pass
-
     def assign(self, var, value):
         """
         Attempt to assign a value to a variable. Return whether or

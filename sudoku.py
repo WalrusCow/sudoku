@@ -32,11 +32,6 @@ class Sudoku(CSP):
                 if key not in self.assignment:
                     if self.possibilities[key] == valSet:
                         # Check that there remains at least one possibility
-                        #print('No more possibilities for {}'.format(key))
-                        #print(self)
-                        #print(self.possibilities[key])
-                        #print(var, val)
-                        #input()
                         return False
                     continue
                     updateKeys.add(key)
@@ -53,9 +48,6 @@ class Sudoku(CSP):
             not checkWithKey(lambda i, j: (i, bc, j, cc))):
                 return False
 
-        #print(updateKeys)
-        #print(self)
-        #input()
         for key in updateKeys:
             self.possibilities[key] -= valSet
         self.possibilities[var] = valSet
@@ -70,27 +62,6 @@ class Sudoku(CSP):
         l = self.domain[:]
         random.shuffle(l)
         return l
-
-    def recompute_possibilities(self):
-        for k in self.variables:
-            self.possibilities[k] = set(self.domain)
-
-        def updatePossibilities(var, val, keyGetter):
-            r = range(3)
-            valSet = {val}
-            for i, j in itertools.product(r, r):
-                key = keyGetter(i, j)
-                if key == var: continue
-                self.possibilities[key] -= valSet
-
-        for key, val in self.assignment.items():
-            self.possibilities[key] = {val}
-            # Box
-            updatePossibilities(key, val, lambda i, j: (br, bc, i, j))
-            # Row
-            updatePossibilities(key, val, lambda i, j: (br, i, cr, j))
-            # Col
-            updatePossibilities(key, val, lambda i, j: (i, bc, j, cc))
 
     def __str__(self):
         grid = [['x'] * 9 for _ in range(9)]
@@ -112,12 +83,15 @@ def csp_backtrack(csp, first=10):
     if csp.complete():
         return csp
     var = csp.select_unassigned_var()
+    def copyPos(pos):
+        return { k: set(i for i in v) for k, v in pos.items() }
+
+    originalPos = csp.possibilities
     for value in csp.order_domain_values(var):
-        csp.recompute_possibilities()
-        #if first: print(value)
+        csp.possibilities = copyPos(originalPos)
         nodes_visited += 1
         if csp.assign(var, value):
-            result = csp_backtrack(csp)#, first and first-1)
+            result = csp_backtrack(csp)
             if result is not None:
                 return result
             csp.unassign(var)

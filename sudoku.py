@@ -65,15 +65,18 @@ class Sudoku(CSP):
 
         return '\n'.join(' '.join(map(str, row)) for row in grid)
 
+nodes_visited = 0
 
 def csp_backtrack(csp, first=10):
     """ Solve a constraint satisfaction problem `csp` through backtracking. """
 
+    global nodes_visited
     if csp.complete():
         return csp
     var = csp.select_unassigned_var()
     for value in csp.order_domain_values(var):
         #if first: print(value)
+        nodes_visited += 1
         if csp.assign(var, value):
             result = csp_backtrack(csp)#, first and first-1)
             if result is not None:
@@ -99,3 +102,4 @@ if __name__ == '__main__':
 
     r = csp_backtrack(csp)
     print(r or 'No solution found')
+    print(nodes_visited)

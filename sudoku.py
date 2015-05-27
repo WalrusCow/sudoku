@@ -63,7 +63,6 @@ if __name__ == '__main__':
             cr = i % 3
             cc = j % 3
             csp.assign((br, bc, cr, cc), val)
-    #print(csp)
 
     r = csp_backtrack(csp)
     print(r or 'No solution found')

@@ -1,4 +1,5 @@
 import itertools
+import random
 import sys
 
 from csp import CSP
@@ -10,17 +11,20 @@ class Sudoku(CSP):
         super().__init__()
         r = range(3)
         self.variables = set(itertools.product(r, r, r, r))
+        self.domain = list(range(1, 10))
 
     def _is_consistent(self):
         return True
 
     def select_unassigned_var(self):
-        unassigned = self.variables - set(self.assignment)
-        # TODO
-        return next(unassigned.__iter__())
+        unassigned = list(self.variables - set(self.assignment))
+        return random.choice(unassigned)
 
     def order_domain_values(self, var):
-        return list(range(1, 10))
+        # Copy for safety
+        l = self.domain[:]
+        random.shuffle(l)
+        return l
 
     def __str__(self):
         grid = [['x'] * 9 for _ in range(9)]

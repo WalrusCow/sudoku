@@ -12,36 +12,41 @@ class Sudoku(CSP):
         r = range(3)
         self.variables = set(itertools.product(r, r, r, r))
         self.domain = list(range(1, 10))
+        self.possibilities = dict()
+        for k in self.variables:
+            self.possibilities[k] = set(self.domain)
 
     def _check_consistency(self, var):
         br, bc, cr, cc = var
         val = self.assignment[var]
         r = range(3)
 
+        updateKeys = set()
+        valSet = {val}
+
+        def checkWithKey(keyGetter):
+            for i, j in itertools.product(r, r):
+                key = keyGetter(i, j)
+                if key == var: continue
+                if key not in self.assignment:
+                    if self.possibilities[key] == valSet:
+                        # Check that there remains at least one possibility
+                        return False
+                    updateKeys.add(key)
+                elif self.assignment[key] == val:
+                    # Check for a conflict
+                    return False
+
         # Check the box for duplicates
-        for i, j in itertools.product(r, r):
-            key = (br, bc, i, j)
-            if key not in self.assignment or key == var:
-                continue
-            if self.assignment[key] == val:
-                return False
-
+        checkWithKey(lambda i, j: (br, bc, i, j))
         # Check the row for duplicates
-        for i, j in itertools.product(r, r):
-            key = (br, i, cr, j)
-            if key not in self.assignment or key == var:
-                continue
-            if self.assignment[key] == val:
-                return False
-
+        checkWithKey(lambda i, j: (br, i, cr, j))
         # Check the column for duplicates
-        for i, j in itertools.product(r, r):
-            key = (i, bc, j, cc)
-            if key not in self.assignment or key == var:
-                continue
-            if self.assignment[key] == val:
-                return False
+        checkWithKey(lambda i, j: (i, bc, j, cc))
 
+        for key in updateKeys:
+            self.possibilities[key] -= valSet
+        self.possibilities[var] = valSet
         return True
 
     def select_unassigned_var(self):

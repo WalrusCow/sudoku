@@ -1,62 +1,17 @@
 import itertools
 import sys
 
-from abc import ABC, abstractmethod
-
-class CSP(ABC):
-    """ A constraint satisfaction problem, with assignment. """
-
-    def __init__(self):
-        """ Set up a CSP to work with. """
-        self.variables = set()
-        self.assignment = dict()
-
-    @abstractmethod
-    def _is_consistent(self):
-        """ Implementation of constraints. """
-        pass
-
-    @abstractmethod
-    def select_unassigned_var(self):
-        """ Select an unassigned variable. """
-        pass
-
-    @abstractmethod
-    def order_domain_values(self, var):
-        """ Choose an order to attempt domain values for `var`. """
-        pass
-
-    def assign(self, var, value):
-        """
-        Attempt to assign a value to a variable. Return whether or
-        not the assignment was successful (was valid).
-        """
-        self.assignment[var] = value
-        if self._is_consistent():
-            return True
-        self.unassign(var)
-        return False
-
-    def unassign(self, var):
-        """ Unassign a variable. """
-        del self.assignment[var]
-
-    def complete(self):
-        """ Return whether or not this problem is complete. """
-        return len(self.assignment) == len(self.variables)
-
+from csp import CSP
 
 class Sudoku(CSP):
     """ Sudoku as a constraint satisfaction problem. """
 
     def __init__(self):
         super().__init__()
-        print(self.assignment)
         r = range(3)
         self.variables = set(itertools.product(r, r, r, r))
 
     def _is_consistent(self):
-        #print('hello')
         return True
 
     def select_unassigned_var(self):
@@ -95,7 +50,6 @@ def csp_backtrack(csp):
 
 if __name__ == '__main__':
     csp = Sudoku()
-    print(csp)
     # Read in a sudoku
     for i, line in enumerate(map(str.strip, sys.stdin)):
         for j, val in enumerate(line.split()):
@@ -109,7 +63,7 @@ if __name__ == '__main__':
             cr = i % 3
             cc = j % 3
             csp.assign((br, bc, cr, cc), val)
-    print(csp)
+    #print(csp)
 
     r = csp_backtrack(csp)
-    print(r)
+    print(r or 'No solution found')

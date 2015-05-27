@@ -1,6 +1,7 @@
 import itertools
 import random
 import sys
+from collections import Counter
 
 from csp import CSP
 
@@ -115,10 +116,15 @@ class Sudoku(CSP):
 
     def order_domain_values(self, var):
         # Order in least->most constraining
-        # Copy for safety
-        l = self.domain[:]
-        random.shuffle(l)
-        return l
+        constraints = Counter()
+
+        def countConstraints(key):
+            for val in self.domain:
+                if val in self.possibilities[key]:
+                    constraints[val] += 1
+            return True
+        self.doAllNeighbours(countConstraints)
+        return sorted(constraints, key=lambda x: constraints[x])
 
     def __str__(self):
         grid = [['x'] * 9 for _ in range(9)]
